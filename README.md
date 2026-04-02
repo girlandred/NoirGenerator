@@ -13,6 +13,9 @@ Your developers become detectives. Your bugs become crimes. Your refactors becom
 - Maps commit types to noir events: bugs are crimes, features are new leads, fixes close cases
 - Auto-trigger mode writes a chapter automatically after every commit
 
+
+![usageExample](NoirExample.jpg)
+
 ## Requirements
 
 An [Anthropic API key](https://console.anthropic.com) is required. Usage is billed to your Anthropic account.
