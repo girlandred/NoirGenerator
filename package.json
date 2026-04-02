@@ -1,0 +1,102 @@
+{
+  "name": "noir-commits",
+  "displayName": "Noir Commits",
+  "description": "Turns your git commits into a noir detective story, one chapter at a time.",
+  "version": "0.1.0",
+  "publisher": "your-publisher-id",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "git",
+    "story",
+    "noir",
+    "creative",
+    "commits"
+  ],
+  "galleryBanner": {
+    "color": "#1a1a2e",
+    "theme": "dark"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "noirCommits.writeChapter",
+        "title": "Noir Commits: Write Next Chapter"
+      },
+      {
+        "command": "noirCommits.setApiKey",
+        "title": "Noir Commits: Set API Key"
+      },
+      {
+        "command": "noirCommits.deleteApiKey",
+        "title": "Noir Commits: Remove API Key"
+      },
+      {
+        "command": "noirCommits.toggleAutoTrigger",
+        "title": "Noir Commits: Toggle Auto-Generate After Commit"
+      },
+      {
+        "command": "noirCommits.openStoryPanel",
+        "title": "Noir Commits: Open Story Preview"
+      },
+      {
+        "command": "noirCommits.showCharacters",
+        "title": "Noir Commits: Show Character Sheet"
+      }
+    ],
+    "configuration": {
+      "title": "Noir Commits",
+      "properties": {
+        "noirCommits.projectDescription": {
+          "type": "string",
+          "default": "",
+          "description": "A short description of the project, used as narrative backdrop (e.g. 'A payment processing system for a mid-sized bank')."
+        },
+        "noirCommits.autoTrigger": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically write a chapter after each git commit in the workspace."
+        },
+        "noirCommits.model": {
+          "type": "string",
+          "default": "claude-haiku-4-5-20251001",
+          "enum": [
+            "claude-haiku-4-5-20251001",
+            "claude-sonnet-4-6"
+          ],
+          "enumDescriptions": [
+            "Haiku — fast and cheap, good for frequent commits",
+            "Sonnet — richer prose, better narrative quality"
+          ],
+          "description": "Claude model used for story generation."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "package": "vsce package",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
+    "@vscode/vsce": "^2.24.0",
+    "eslint": "^10.1.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.3.0"
+  }
+}
