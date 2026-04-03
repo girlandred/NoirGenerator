@@ -2,8 +2,12 @@
   "name": "noir-commits",
   "displayName": "Noir Commits",
   "description": "Turns your git commits into a noir detective story, one chapter at a time.",
-  "version": "0.1.0",
-  "publisher": "your-publisher-id",
+  "version": "0.2.0",
+  "publisher": "nonsleeper",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/girlandred/NoirGenerator"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -38,6 +42,10 @@
       {
         "command": "noirCommits.deleteApiKey",
         "title": "Noir Commits: Remove API Key"
+      },
+      {
+        "command": "noirCommits.skipCommit",
+        "title": "Noir Commits: Skip Current Commit"
       },
       {
         "command": "noirCommits.toggleAutoTrigger",
@@ -87,16 +95,29 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "package": "vsce package",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "TS_NODE_PROJECT=tsconfig.test.json mocha",
+    "test:integration": "npm run compile && node ./out/test/integration/runTests.js"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.5",
+    "diff": "^8.0.4"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.0",
+    "@vscode/test-electron": "^2.4.0",
     "@types/node": "^20.0.0",
+    "@types/sinon": "^17.0.0",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
     "@vscode/vsce": "^2.24.0",
     "eslint": "^10.1.0",
+    "mocha": "^11.0.0",
     "prettier": "^3.8.1",
+    "sinon": "^17.0.0",
+    "ts-node": "^10.9.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.0"
   }
 }

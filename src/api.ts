@@ -9,7 +9,7 @@ interface ApiResponse {
   content: ContentBlock[];
 }
 
-function extractText(data: unknown): string {
+export function extractText(data: unknown): string {
   if (typeof data !== "object" || data === null || !Array.isArray((data as ApiResponse).content)) {
     throw new Error("Unexpected API response structure.");
   }

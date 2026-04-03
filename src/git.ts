@@ -19,6 +19,8 @@ export interface StoryState {
   openThreads: string[];
 }
 
+const SEP = "\x1E";
+
 function runFile(file: string, args: string[], cwd: string): Promise<string> {
   return new Promise((resolve, reject) => {
     cp.execFile(file, args, { cwd, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) => {
@@ -31,12 +33,9 @@ function runFile(file: string, args: string[], cwd: string): Promise<string> {
   });
 }
 
-function isValidHash(hash: string): boolean {
+export function isValidHash(hash: string): boolean {
   return /^[a-f0-9]{40}$/.test(hash);
 }
-
-// ASCII Record Separator — won't appear in commit metadata and is safe in execFile args
-const SEP = "\x1E";
 
 export async function getLastCommit(repoPath: string): Promise<CommitData | null> {
   try {
@@ -70,7 +69,7 @@ function stateFilePath(repoPath: string): vscode.Uri {
   return vscode.Uri.file(path.join(repoPath, ".noir-commits-state.json"));
 }
 
-function isValidState(data: unknown): data is StoryState {
+export function isValidState(data: unknown): data is StoryState {
   if (typeof data !== "object" || data === null || Array.isArray(data)) {
     return false;
   }
@@ -90,7 +89,6 @@ function isValidState(data: unknown): data is StoryState {
 export async function getStoryState(repoPath: string): Promise<StoryState> {
   try {
     const raw = await vscode.workspace.fs.readFile(stateFilePath(repoPath));
-    // Reviver blocks prototype pollution keys before any value is assigned
     const parsed = JSON.parse(new TextDecoder().decode(raw), (key, value) => {
       if (key === "__proto__" || key === "constructor" || key === "prototype") {
         return undefined;

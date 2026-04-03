@@ -25,13 +25,13 @@ Output format:
 - Begin with a chapter title as ## heading
 - Body text only — no explanations, no meta-commentary outside the story`;
 
-const sanitize = (s: string, max: number) =>
+export const sanitize = (s: string, max: number) =>
   s
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
     .substring(0, max)
     .trim();
 
-function buildUserPrompt(commit: CommitData, state: StoryState): string {
+export function buildUserPrompt(commit: CommitData, state: StoryState): string {
   const previousContext = state.previousSummary
     ? `Previous story context:\n${state.previousSummary}`
     : "This is the first chapter. Establish the setting: a rain-soaked city, a weary detective, a case just opened.";
