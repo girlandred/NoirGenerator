@@ -16,7 +16,7 @@ Your developers become detectives. Your bugs become crimes. Your refactors becom
 - **Character sheet** — tracks the full cast and open plot threads accumulated across chapters
 - **Model selector** — choose between Claude Haiku (fast, economical) and Claude Sonnet (richer prose)
 
-![Noir Commits example](https://github.com/girlandred/NoirGenerator/blob/main/NoirExample.jpg)
+![Noir Commits example](https://raw.githubusercontent.com/girlandred/NoirGenerator/main/NoirExample.jpg)
 
 ## Requirements
 
