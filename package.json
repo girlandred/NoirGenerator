@@ -3,7 +3,7 @@
   "displayName": "Noir Commits",
   "description": "Turns your git commits into a noir detective story, one chapter at a time.",
   "version": "0.2.0",
-  "publisher": "nonsleeper",
+  "publisher": "nonsleeper2026",
   "repository": {
     "type": "git",
     "url": "https://github.com/girlandred/NoirGenerator"
@@ -21,6 +21,7 @@
     "creative",
     "commits"
   ],
+  "icon": "Logo.png",
   "galleryBanner": {
     "color": "#1a1a2e",
     "theme": "dark"
