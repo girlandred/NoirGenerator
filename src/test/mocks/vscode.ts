@@ -31,9 +31,21 @@ export const workspace = {
 };
 
 export const window = {
-  showErrorMessage: async (_message: string, ..._items: string[]): Promise<string | undefined> => undefined,
-  showInformationMessage: async (_message: string, ..._items: string[]): Promise<string | undefined> => undefined,
-  showInputBox: async (_options?: { title?: string; prompt?: string; password?: boolean; ignoreFocusOut?: boolean; placeHolder?: string; value?: string; validateInput?: (v: string) => string | null }): Promise<string | undefined> => undefined,
+  showErrorMessage: async (_message: string, ..._items: string[]): Promise<string | undefined> =>
+    undefined,
+  showInformationMessage: async (
+    _message: string,
+    ..._items: string[]
+  ): Promise<string | undefined> => undefined,
+  showInputBox: async (_options?: {
+    title?: string;
+    prompt?: string;
+    password?: boolean;
+    ignoreFocusOut?: boolean;
+    placeHolder?: string;
+    value?: string;
+    validateInput?: (v: string) => string | null;
+  }): Promise<string | undefined> => undefined,
   withProgress: async <T>(
     _options: { location: number; title?: string; cancellable?: boolean },
     task: (progress: FakeProgress) => Promise<T>
@@ -45,7 +57,10 @@ export const Uri = {
 };
 
 export const commands = {
-  registerCommand: (_command: string, _callback: (...args: unknown[]) => unknown): FakeDisposable => ({ dispose: () => {} }),
+  registerCommand: (
+    _command: string,
+    _callback: (...args: unknown[]) => unknown
+  ): FakeDisposable => ({ dispose: () => {} }),
   executeCommand: async (_command: string, ..._args: unknown[]): Promise<unknown> => undefined,
 };
 

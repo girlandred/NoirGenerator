@@ -71,9 +71,12 @@ describe("runOnboarding", () => {
 
   it("does not mark onboarded when user dismisses the data disclosure modal", async () => {
     const ctx = makeContext(false);
-    sinon.stub(vscodeMock.window, "showInformationMessage")
-      .onFirstCall().resolves("Get Started")
-      .onSecondCall().resolves(undefined);
+    sinon
+      .stub(vscodeMock.window, "showInformationMessage")
+      .onFirstCall()
+      .resolves("Get Started")
+      .onSecondCall()
+      .resolves(undefined);
     const inputStub = sinon.stub(vscodeMock.window, "showInputBox");
     await runOnboarding(ctx as never);
     assert.ok(inputStub.notCalled);
@@ -82,13 +85,18 @@ describe("runOnboarding", () => {
 
   it("saves detective name and API key when both are provided", async () => {
     const ctx = makeContext(false);
-    sinon.stub(vscodeMock.window, "showInformationMessage")
-      .onFirstCall().resolves("Get Started")
-      .onSecondCall().resolves("Got it");
+    sinon
+      .stub(vscodeMock.window, "showInformationMessage")
+      .onFirstCall()
+      .resolves("Get Started")
+      .onSecondCall()
+      .resolves("Got it");
     sinon
       .stub(vscodeMock.window, "showInputBox")
-      .onFirstCall().resolves("Marlowe")
-      .onSecondCall().resolves("sk-ant-test-key");
+      .onFirstCall()
+      .resolves("Marlowe")
+      .onSecondCall()
+      .resolves("sk-ant-test-key");
 
     const updates: Record<string, unknown> = {};
     sinon.stub(vscodeMock.workspace, "getConfiguration").returns(fakeConfig(updates));
@@ -102,9 +110,12 @@ describe("runOnboarding", () => {
 
   it("marks onboarded even when name and key prompts are skipped", async () => {
     const ctx = makeContext(false);
-    sinon.stub(vscodeMock.window, "showInformationMessage")
-      .onFirstCall().resolves("Get Started")
-      .onSecondCall().resolves("Got it");
+    sinon
+      .stub(vscodeMock.window, "showInformationMessage")
+      .onFirstCall()
+      .resolves("Get Started")
+      .onSecondCall()
+      .resolves("Got it");
     sinon.stub(vscodeMock.window, "showInputBox").resolves(undefined);
     sinon.stub(vscodeMock.workspace, "getConfiguration").returns(fakeConfig({}));
 
@@ -116,14 +127,19 @@ describe("runOnboarding", () => {
 
   it("shows confirmation message when API key is saved", async () => {
     const ctx = makeContext(false);
-    const infoStub = sinon.stub(vscodeMock.window, "showInformationMessage")
-      .onFirstCall().resolves("Get Started")
-      .onSecondCall().resolves("Got it")
+    const infoStub = sinon
+      .stub(vscodeMock.window, "showInformationMessage")
+      .onFirstCall()
+      .resolves("Get Started")
+      .onSecondCall()
+      .resolves("Got it")
       .resolves(undefined);
     sinon
       .stub(vscodeMock.window, "showInputBox")
-      .onFirstCall().resolves("")
-      .onSecondCall().resolves("sk-ant-mykey");
+      .onFirstCall()
+      .resolves("")
+      .onSecondCall()
+      .resolves("sk-ant-mykey");
     sinon.stub(vscodeMock.workspace, "getConfiguration").returns(fakeConfig({}));
 
     await runOnboarding(ctx as never);
@@ -134,9 +150,12 @@ describe("runOnboarding", () => {
 
   it("shows no-key message when key prompt is skipped", async () => {
     const ctx = makeContext(false);
-    const infoStub = sinon.stub(vscodeMock.window, "showInformationMessage")
-      .onFirstCall().resolves("Get Started")
-      .onSecondCall().resolves("Got it")
+    const infoStub = sinon
+      .stub(vscodeMock.window, "showInformationMessage")
+      .onFirstCall()
+      .resolves("Get Started")
+      .onSecondCall()
+      .resolves("Got it")
       .resolves(undefined);
     sinon.stub(vscodeMock.window, "showInputBox").resolves(undefined);
     sinon.stub(vscodeMock.workspace, "getConfiguration").returns(fakeConfig({}));
