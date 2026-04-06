@@ -56,7 +56,7 @@ The chapter opens in the story preview panel and is also written to `story.md` i
 
 - Your git **author name is never sent** to any AI provider — use a detective alias instead
 - Commit messages, dates, and file-change summaries are sent to the selected AI provider to generate story text
-- Your API key is stored in VS Code SecretStorage (OS keychain) — never written to disk or sent anywhere except the Anthropic API
+- Your API key is stored in VS Code SecretStorage (OS keychain) — never written to disk or sent anywhere except the Anthropic API. **Uninstalling the extension does not remove the key** — use **Noir Commits: Remove API Key** before uninstalling if you want it deleted
 - Story state is saved to `.noir-commits-state.json` in your workspace root — add it to `.gitignore` to keep it private
 - Generated story content is labeled as AI-generated in the preview panel and in `story.md`
 - To report an issue or unexpected output: [open an issue](https://github.com/girlandred/NoirGenerator/issues)
