@@ -2,7 +2,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { escapeHtml } from "./utils";
 
-let panel: vscode.WebviewPanel | undefined;
+const panels = new Map<string, vscode.WebviewPanel>();
 
 function markdownToHtml(md: string): string {
   if (!md.trim()) {
@@ -36,7 +36,7 @@ function buildHtml(content: string): string {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; link-src https:;">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -72,18 +72,34 @@ function buildHtml(content: string): string {
     margin: 2.5em 0;
   }
   .empty { color: #3a3530; font-style: italic; padding: 5em 0; text-align: center; }
+  .footer {
+    margin-top: 4em;
+    padding-top: 1.2em;
+    border-top: 1px solid #1e1c18;
+    color: #3a3530;
+    font-size: 0.8em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer a { color: #3a3530; text-decoration: underline; }
 </style>
 </head>
 <body>
 <div class="container">
 <h1>Noir Story</h1>
 ${markdownToHtml(content)}
+<div class="footer">
+  <span>&#x2756; AI-generated content</span>
+  <a href="https://github.com/girlandred/NoirGenerator/issues">Report an issue</a>
+</div>
 </div>
 </body>
 </html>`;
 }
 
 async function refreshContent(root: string) {
+  const panel = panels.get(root);
   if (!panel) {
     return;
   }
@@ -98,22 +114,32 @@ async function refreshContent(root: string) {
 }
 
 export function openStoryPanel(context: vscode.ExtensionContext, root: string) {
-  if (panel) {
-    panel.reveal(vscode.ViewColumn.One);
+  const existing = panels.get(root);
+  if (existing) {
+    existing.reveal(vscode.ViewColumn.One);
     refreshContent(root);
     return;
   }
 
-  panel = vscode.window.createWebviewPanel("noirStory", "Noir Story", vscode.ViewColumn.One, {
+  const panel = vscode.window.createWebviewPanel("noirStory", "Noir Story", vscode.ViewColumn.One, {
     enableScripts: false,
   });
+  panels.set(root, panel);
+
+  const watcher = vscode.workspace.createFileSystemWatcher(
+    new vscode.RelativePattern(root, "story.md")
+  );
+  watcher.onDidChange(() => refreshContent(root), null, context.subscriptions);
+  watcher.onDidCreate(() => refreshContent(root), null, context.subscriptions);
 
   panel.onDidDispose(
     () => {
-      panel = undefined;
+      panels.delete(root);
+      watcher.dispose();
     },
     null,
     context.subscriptions
   );
+
   refreshContent(root);
 }

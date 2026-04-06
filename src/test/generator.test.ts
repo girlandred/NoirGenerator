@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { sanitize, buildUserPrompt } from "../generator";
+import { sanitize, buildUserPrompt, parseChapterResult } from "../generator";
 import { CommitData, StoryState } from "../git";
 
 describe("sanitize", () => {
@@ -76,9 +76,19 @@ describe("buildUserPrompt", () => {
     assert.ok(prompt.includes("fix: resolve authentication bug"));
   });
 
-  it("includes author name", () => {
+  it("does not include author name when no detectiveName is given", () => {
     const prompt = buildUserPrompt(baseCommit, emptyState);
-    assert.ok(prompt.includes("Jane Doe"));
+    assert.ok(!prompt.includes("Jane Doe"));
+  });
+
+  it("includes detectiveName when provided", () => {
+    const prompt = buildUserPrompt(baseCommit, emptyState, "Marlowe");
+    assert.ok(prompt.includes("Marlowe"));
+  });
+
+  it("uses fallback name instruction when detectiveName is empty", () => {
+    const prompt = buildUserPrompt(baseCommit, emptyState, "");
+    assert.ok(prompt.includes("invent an appropriate noir detective name"));
   });
 
   it("includes diff summary", () => {
@@ -120,5 +130,69 @@ describe("buildUserPrompt", () => {
     const prompt = buildUserPrompt(commit, emptyState);
     assert.ok(prompt.includes("b".repeat(2000)));
     assert.ok(!prompt.includes("b".repeat(2001)));
+  });
+});
+
+const fallback = {
+  characters: { "Detective Ross": "lead investigator" },
+  openThreads: ["Cold case"],
+};
+
+describe("parseChapterResult", () => {
+  it("returns the full raw string as chapter when no JSON block is present", () => {
+    const raw = "## The Rain\n\nIt fell hard.";
+    const result = parseChapterResult(raw, fallback);
+    assert.strictEqual(result.chapter, raw.trim());
+    assert.deepStrictEqual(result.characters, fallback.characters);
+    assert.deepStrictEqual(result.openThreads, fallback.openThreads);
+  });
+
+  it("extracts chapter text before the JSON block", () => {
+    const raw = `## The Rain\n\nIt fell hard.\n\`\`\`json\n{"characters":{},"openThreads":[]}\n\`\`\``;
+    const result = parseChapterResult(raw, fallback);
+    assert.strictEqual(result.chapter, "## The Rain\n\nIt fell hard.");
+  });
+
+  it("extracts characters from the JSON block", () => {
+    const raw = `## Chapter\n\nText.\n\`\`\`json\n{"characters":{"Marlowe":"detective"},"openThreads":[]}\n\`\`\``;
+    const result = parseChapterResult(raw, fallback);
+    assert.deepStrictEqual(result.characters, { Marlowe: "detective" });
+  });
+
+  it("extracts openThreads from the JSON block", () => {
+    const raw = `## Chapter\n\nText.\n\`\`\`json\n{"characters":{},"openThreads":["Who killed Vega?"]}\n\`\`\``;
+    const result = parseChapterResult(raw, fallback);
+    assert.deepStrictEqual(result.openThreads, ["Who killed Vega?"]);
+  });
+
+  it("falls back to fallback characters when JSON has no characters key", () => {
+    const raw = `## Chapter\n\nText.\n\`\`\`json\n{"openThreads":[]}\n\`\`\``;
+    const result = parseChapterResult(raw, fallback);
+    assert.deepStrictEqual(result.characters, fallback.characters);
+  });
+
+  it("falls back to fallback openThreads when JSON has no openThreads key", () => {
+    const raw = `## Chapter\n\nText.\n\`\`\`json\n{"characters":{}}\n\`\`\``;
+    const result = parseChapterResult(raw, fallback);
+    assert.deepStrictEqual(result.openThreads, fallback.openThreads);
+  });
+
+  it("falls back gracefully when JSON block is malformed", () => {
+    const raw = "## Chapter\n\nText.\n```json\n{ not valid json %%% }\n```";
+    const result = parseChapterResult(raw, fallback);
+    assert.strictEqual(result.chapter, "## Chapter\n\nText.");
+    assert.deepStrictEqual(result.characters, fallback.characters);
+  });
+
+  it("strips __proto__ keys from JSON to prevent prototype pollution", () => {
+    const raw = `## Chapter\n\nText.\n\`\`\`json\n{"characters":{},"openThreads":[],"__proto__":{"polluted":true}}\n\`\`\``;
+    parseChapterResult(raw, fallback);
+    assert.strictEqual((Object.prototype as Record<string, unknown>).polluted, undefined);
+  });
+
+  it("handles trailing whitespace around the JSON block", () => {
+    const raw = '## Chapter\n\nText.\n```json\n  {"characters":{},"openThreads":[]}\n  ```  ';
+    const result = parseChapterResult(raw, fallback);
+    assert.deepStrictEqual(result.openThreads, []);
   });
 });

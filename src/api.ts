@@ -1,6 +1,12 @@
 export const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 const API_URL = "https://api.anthropic.com/v1/messages";
 
+export type LLMCaller = (
+  userPrompt: string,
+  maxTokens: number,
+  systemPrompt?: string
+) => Promise<string>;
+
 interface ContentBlock {
   type: string;
   text?: string;
@@ -26,10 +32,14 @@ export function extractText(data: unknown): string {
 }
 
 function handleHttpError(response: Response): never {
-  const msg =
-    response.status === 401 || response.status === 403
-      ? "Authentication failed. Please check your API key in settings."
-      : `API error ${response.status}.`;
+  let msg: string;
+  if (response.status === 401 || response.status === 403) {
+    msg = "Authentication failed. Please check your API key in settings.";
+  } else if (response.status === 429) {
+    msg = "Rate limit reached. Please wait a moment and try again.";
+  } else {
+    msg = `API error ${response.status}.`;
+  }
   throw new Error(msg);
 }
 
@@ -38,7 +48,8 @@ export async function callClaude(
   userPrompt: string,
   maxTokens: number,
   systemPrompt?: string,
-  model: string = DEFAULT_MODEL
+  model: string = DEFAULT_MODEL,
+  signal?: AbortSignal
 ): Promise<string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -61,10 +72,20 @@ export async function callClaude(
     method: "POST",
     headers,
     body: JSON.stringify(body),
+    signal,
   });
 
   if (!response.ok) {
     handleHttpError(response);
   }
   return extractText(await response.json());
+}
+
+export function makeAnthropicCaller(
+  apiKey: string,
+  model: string = DEFAULT_MODEL,
+  signal?: AbortSignal
+): LLMCaller {
+  return (userPrompt, maxTokens, systemPrompt) =>
+    callClaude(apiKey, userPrompt, maxTokens, systemPrompt, model, signal);
 }

@@ -53,7 +53,7 @@ describe("callClaude", () => {
   let fetchStub: sinon.SinonStub;
 
   beforeEach(() => {
-    fetchStub = sinon.stub(globalThis, "fetch" as any);
+    fetchStub = sinon.stub(globalThis, "fetch" as never);
   });
 
   afterEach(() => {
@@ -75,7 +75,10 @@ describe("callClaude", () => {
       json: async () => ({ content: [{ type: "text", text: "ok" }] }),
     });
     await callClaude("sk-ant-test-123", "prompt", 100);
-    const [, options] = fetchStub.firstCall.args as [string, RequestInit & { headers: Record<string, string> }];
+    const [, options] = fetchStub.firstCall.args as [
+      string,
+      RequestInit & { headers: Record<string, string> },
+    ];
     assert.strictEqual(options.headers["x-api-key"], "sk-ant-test-123");
     assert.strictEqual(options.headers["anthropic-version"], "2023-06-01");
   });
@@ -98,7 +101,10 @@ describe("callClaude", () => {
       json: async () => ({ content: [{ type: "text", text: "ok" }] }),
     });
     await callClaude("sk-ant-key", "user prompt", 100, "system prompt");
-    const [, options] = fetchStub.firstCall.args as [string, RequestInit & { headers: Record<string, string> }];
+    const [, options] = fetchStub.firstCall.args as [
+      string,
+      RequestInit & { headers: Record<string, string> },
+    ];
     assert.strictEqual(options.headers["anthropic-beta"], "prompt-caching-2024-07-31");
   });
 
@@ -108,7 +114,10 @@ describe("callClaude", () => {
       json: async () => ({ content: [{ type: "text", text: "ok" }] }),
     });
     await callClaude("sk-ant-key", "user prompt", 100);
-    const [, options] = fetchStub.firstCall.args as [string, RequestInit & { headers: Record<string, string> }];
+    const [, options] = fetchStub.firstCall.args as [
+      string,
+      RequestInit & { headers: Record<string, string> },
+    ];
     assert.strictEqual(options.headers["anthropic-beta"], undefined);
   });
 
@@ -142,6 +151,11 @@ describe("callClaude", () => {
   it("throws with auth message on 403", async () => {
     fetchStub.resolves({ ok: false, status: 403 });
     await assert.rejects(callClaude("bad-key", "prompt", 100), /Authentication failed/);
+  });
+
+  it("throws with rate-limit message on 429", async () => {
+    fetchStub.resolves({ ok: false, status: 429 });
+    await assert.rejects(callClaude("key", "prompt", 100), /Rate limit reached/);
   });
 
   it("throws with status code on other HTTP errors", async () => {

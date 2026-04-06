@@ -16,17 +16,21 @@ const EXPECTED_COMMANDS = [
   "noirCommits.toggleAutoTrigger",
   "noirCommits.openStoryPanel",
   "noirCommits.showCharacters",
+  "noirCommits.setDetectiveName",
 ];
 
 describe("Noir Commits — integration", () => {
   before(async () => {
     const ext = vscode.extensions.getExtension(EXTENSION_ID);
     assert.ok(ext, `Extension ${EXTENSION_ID} not found — check publisher/name in package.json`);
+
     if (!ext.isActive) {
       await ext.activate();
     }
-  });
 
+    const { globalState } = ext.exports as { globalState: vscode.Memento };
+    await globalState.update("noirCommits.onboarded", true);
+  });
 
   describe("command registration", () => {
     it("registers all expected commands", async () => {
@@ -36,7 +40,6 @@ describe("Noir Commits — integration", () => {
       }
     });
   });
-
 
   describe("configuration", () => {
     after(async () => {
@@ -71,6 +74,10 @@ describe("Noir Commits — integration", () => {
       assert.strictEqual(getNoirConfig().autoTrigger, true);
       await cfg.update("autoTrigger", false, vscode.ConfigurationTarget.Global);
       assert.strictEqual(getNoirConfig().autoTrigger, false);
+    });
+
+    it("getNoirConfig does not include a provider field", () => {
+      assert.ok(!("provider" in getNoirConfig()));
     });
   });
 
@@ -134,7 +141,7 @@ describe("Noir Commits — integration", () => {
         })
       );
       await getStoryState(tmpDir);
-      assert.strictEqual((Object.prototype as any).polluted, undefined);
+      assert.strictEqual((Object.prototype as Record<string, unknown>).polluted, undefined);
     });
   });
 });

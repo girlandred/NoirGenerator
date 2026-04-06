@@ -76,6 +76,14 @@ export function isValidState(data: unknown): data is StoryState {
   const s = data as Record<string, unknown>;
   return (
     Array.isArray(s.chapters) &&
+    (s.chapters as unknown[]).every(
+      (c) =>
+        typeof c === "object" &&
+        c !== null &&
+        typeof (c as Record<string, unknown>).hash === "string" &&
+        typeof (c as Record<string, unknown>).chapter === "string" &&
+        typeof (c as Record<string, unknown>).date === "string"
+    ) &&
     (s.lastProcessedHash === null || typeof s.lastProcessedHash === "string") &&
     typeof s.chapterCount === "number" &&
     typeof s.previousSummary === "string" &&

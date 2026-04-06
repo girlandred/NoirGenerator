@@ -1,8 +1,11 @@
 import * as assert from "assert";
-import * as sinon from "sinon";
-import * as apiModule from "../api";
 import { maybeSummarize } from "../summarizer";
 import { StoryState } from "../git";
+import { LLMCaller } from "../api";
+
+const noCaller: LLMCaller = async () => {
+  throw new Error("caller should not be invoked");
+};
 
 const emptyState: StoryState = {
   chapters: [],
@@ -14,10 +17,8 @@ const emptyState: StoryState = {
 };
 
 describe("maybeSummarize", () => {
-  afterEach(() => sinon.restore());
-
   it("returns empty string when there are no chapters", async () => {
-    const result = await maybeSummarize(emptyState, "key", "model");
+    const result = await maybeSummarize(emptyState, noCaller);
     assert.strictEqual(result, "");
   });
 
@@ -26,7 +27,7 @@ describe("maybeSummarize", () => {
       ...emptyState,
       chapters: [{ hash: "abc", chapter: "Short chapter.", date: "2024-01-01" }],
     };
-    const result = await maybeSummarize(state, "key", "model");
+    const result = await maybeSummarize(state, noCaller);
     assert.strictEqual(result, "Short chapter.");
   });
 
@@ -38,7 +39,7 @@ describe("maybeSummarize", () => {
         { hash: "b", chapter: "Chapter two.", date: "2024-01-02" },
       ],
     };
-    const result = await maybeSummarize(state, "key", "model");
+    const result = await maybeSummarize(state, noCaller);
     assert.ok(result.includes("Chapter one."));
     assert.ok(result.includes("Chapter two."));
   });
@@ -48,29 +49,35 @@ describe("maybeSummarize", () => {
       ...emptyState,
       chapters: [{ hash: "abc", chapter: "x".repeat(2000), date: "2024-01-01" }],
     };
-    const result = await maybeSummarize(state, "key", "model");
+    const result = await maybeSummarize(state, noCaller);
     assert.strictEqual(result.length, 2000);
   });
 
-  it("calls callClaude when story exceeds the 2000-char threshold", async () => {
-    const stub = sinon.stub(apiModule, "callClaude").resolves("Compressed summary.");
+  it("calls the caller when story exceeds the 2000-char threshold", async () => {
+    let called = false;
+    const caller: LLMCaller = async () => {
+      called = true;
+      return "Compressed summary.";
+    };
     const state = {
       ...emptyState,
       chapters: [{ hash: "abc", chapter: "x".repeat(2001), date: "2024-01-01" }],
     };
-    const result = await maybeSummarize(state, "sk-ant-key", "model");
+    const result = await maybeSummarize(state, caller);
     assert.strictEqual(result, "Compressed summary.");
-    assert.ok(stub.calledOnce);
+    assert.ok(called);
   });
 
-  it("falls back to last 2000 chars of story when callClaude throws", async () => {
-    sinon.stub(apiModule, "callClaude").rejects(new Error("API error"));
+  it("falls back to last 2000 chars of story when caller throws", async () => {
+    const caller: LLMCaller = async () => {
+      throw new Error("API error");
+    };
     const longChapter = "y".repeat(2001);
     const state = {
       ...emptyState,
       chapters: [{ hash: "abc", chapter: longChapter, date: "2024-01-01" }],
     };
-    const result = await maybeSummarize(state, "key", "model");
+    const result = await maybeSummarize(state, caller);
     assert.strictEqual(result.length, 2000);
   });
 });

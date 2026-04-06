@@ -98,4 +98,51 @@ describe("isValidState", () => {
   it("rejects state where lastProcessedHash is a number", () => {
     assert.strictEqual(isValidState({ ...validState, lastProcessedHash: 42 }), false);
   });
+
+  it("rejects state where chapters contains a non-object item", () => {
+    assert.strictEqual(isValidState({ ...validState, chapters: [null] }), false);
+    assert.strictEqual(isValidState({ ...validState, chapters: [42] }), false);
+    assert.strictEqual(isValidState({ ...validState, chapters: ["string"] }), false);
+  });
+
+  it("rejects a chapter item missing the hash field", () => {
+    assert.strictEqual(
+      isValidState({ ...validState, chapters: [{ chapter: "text", date: "2024-01-01" }] }),
+      false
+    );
+  });
+
+  it("rejects a chapter item missing the chapter field", () => {
+    assert.strictEqual(
+      isValidState({ ...validState, chapters: [{ hash: "abc", date: "2024-01-01" }] }),
+      false
+    );
+  });
+
+  it("rejects a chapter item missing the date field", () => {
+    assert.strictEqual(
+      isValidState({ ...validState, chapters: [{ hash: "abc", chapter: "text" }] }),
+      false
+    );
+  });
+
+  it("rejects a chapter item where hash is not a string", () => {
+    assert.strictEqual(
+      isValidState({
+        ...validState,
+        chapters: [{ hash: 123, chapter: "text", date: "2024-01-01" }],
+      }),
+      false
+    );
+  });
+
+  it("accepts a well-formed chapter item", () => {
+    assert.strictEqual(
+      isValidState({
+        ...validState,
+        chapters: [{ hash: "abc", chapter: "text", date: "2024-01-01" }],
+      }),
+      true
+    );
+  });
 });

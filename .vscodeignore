@@ -1,0 +1,43 @@
+# Source — compiled to out/
+src/
+
+# Test infrastructure
+test-fixtures/
+.mocharc.json
+.vscode-test/
+
+# Compiled test output
+out/test/
+
+# Source maps (reduce package size)
+out/**/*.map
+
+# TypeScript configs
+tsconfig.json
+tsconfig.test.json
+
+# Linting / formatting
+eslint.config.mjs
+.prettierignore
+.markdownlint.json
+
+# Editor / tool configs
+.vscode/
+.idea/
+.claude/
+memory/
+
+# Git
+.gitignore
+.gitattributes
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies (not needed in packaged extension)
+node_modules/
+package-lock.json
+
+# Misc
+*.vsix

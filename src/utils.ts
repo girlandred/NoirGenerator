@@ -26,11 +26,12 @@ export function requireWorkspaceRoot(): string | undefined {
 
 const VALID_MODELS = new Set([DEFAULT_MODEL, "claude-sonnet-4-6"]);
 
-export function getNoirConfig(): { model: string; autoTrigger: boolean } {
+export function getNoirConfig(): { model: string; autoTrigger: boolean; detectiveName: string } {
   const cfg = vscode.workspace.getConfiguration("noirCommits");
   const rawModel = cfg.get<string>("model") ?? DEFAULT_MODEL;
   return {
     model: VALID_MODELS.has(rawModel) ? rawModel : DEFAULT_MODEL,
     autoTrigger: cfg.get<boolean>("autoTrigger") ?? false,
+    detectiveName: (cfg.get<string>("detectiveName") ?? "").trim(),
   };
 }

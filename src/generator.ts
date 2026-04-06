@@ -1,5 +1,5 @@
 import { CommitData, StoryState } from "./git";
-import { callClaude } from "./api";
+import { LLMCaller } from "./api";
 import { formatCharacters, formatThreads } from "./utils";
 
 const SYSTEM_PROMPT = `You are a noir detective novelist. You transform software development activity into a dark, atmospheric detective story.
@@ -20,10 +20,15 @@ Mapping rules:
 - Fix → closing a lead, neutralizing a suspect
 
 Output format:
-- Markdown only
-- A short chapter (150–300 words)
-- Begin with a chapter title as ## heading
-- Body text only — no explanations, no meta-commentary outside the story`;
+1. A short chapter (150–300 words) as markdown, beginning with a ## heading. Body text only — no meta-commentary.
+2. Immediately after the chapter, a single JSON block:
+\`\`\`json
+{"characters": {"Name": "one-sentence role"}, "openThreads": ["thread 1"]}
+\`\`\`
+Metadata rules:
+- Merge existing characters with new ones; update descriptions if a role evolved
+- Remove threads resolved in this chapter; keep unresolved ones; add new ones introduced
+- Maximum 5 open threads, maximum 15 words each`;
 
 export const sanitize = (s: string, max: number) =>
   s
@@ -31,7 +36,11 @@ export const sanitize = (s: string, max: number) =>
     .substring(0, max)
     .trim();
 
-export function buildUserPrompt(commit: CommitData, state: StoryState): string {
+export function buildUserPrompt(
+  commit: CommitData,
+  state: StoryState,
+  detectiveName?: string
+): string {
   const previousContext = state.previousSummary
     ? `Previous story context:\n${state.previousSummary}`
     : "This is the first chapter. Establish the setting: a rain-soaked city, a weary detective, a case just opened.";
@@ -44,7 +53,9 @@ export function buildUserPrompt(commit: CommitData, state: StoryState): string {
   const threadList = formatThreads(state.openThreads ?? []);
   const threadsContext = threadList ? `Open plot threads:\n${threadList}` : "No open threads yet.";
 
-  const author = sanitize(commit.author, 100);
+  const nameInstruction = detectiveName
+    ? `6. The detective's name is "${sanitize(detectiveName, 60)}". Use this as the protagonist's recurring name.`
+    : "6. If no protagonist name is established yet, invent an appropriate noir detective name and keep it consistent.";
 
   return `${previousContext}
 
@@ -54,7 +65,6 @@ ${threadsContext}
 
 Commit data:
 - Message: ${sanitize(commit.message, 300)}
-- Author: ${author}
 - Date: ${sanitize(commit.date, 20)}
 - Diff summary:
 ${sanitize(commit.diffSummary, 2000)}
@@ -65,17 +75,53 @@ Instructions:
 3. Introduce or evolve tension if appropriate.
 4. Keep it grounded — do not become surreal or fantastical.
 5. If the commit is small, keep the scene short and subtle.
-6. The author name "${author}" should become a recurring character name.
+${nameInstruction}
 7. Advance or resolve at least one open thread if appropriate.
 
 Write the next chapter.`;
 }
 
+export interface ChapterResult {
+  chapter: string;
+  characters: Record<string, string>;
+  openThreads: string[];
+}
+
+export function parseChapterResult(
+  raw: string,
+  fallback: Omit<ChapterResult, "chapter">
+): ChapterResult {
+  const jsonMatch = raw.match(/```json\s*([\s\S]*?)\s*```\s*$/);
+  if (!jsonMatch) {
+    return { chapter: raw.trim(), ...fallback };
+  }
+  const chapter = raw.slice(0, raw.lastIndexOf("```json")).trim();
+  try {
+    const parsed = JSON.parse(jsonMatch[1], (key, value) => {
+      if (key === "__proto__" || key === "constructor" || key === "prototype") {
+        return undefined;
+      }
+      return value;
+    });
+    return {
+      chapter,
+      characters: parsed.characters ?? fallback.characters,
+      openThreads: parsed.openThreads ?? fallback.openThreads,
+    };
+  } catch {
+    return { chapter, ...fallback };
+  }
+}
+
 export async function generateChapter(
   commit: CommitData,
   state: StoryState,
-  apiKey: string,
-  model: string
-): Promise<string> {
-  return callClaude(apiKey, buildUserPrompt(commit, state), 1000, SYSTEM_PROMPT, model);
+  caller: LLMCaller,
+  detectiveName?: string
+): Promise<ChapterResult> {
+  const raw = await caller(buildUserPrompt(commit, state, detectiveName), 600, SYSTEM_PROMPT);
+  return parseChapterResult(raw, {
+    characters: state.characters,
+    openThreads: state.openThreads ?? [],
+  });
 }

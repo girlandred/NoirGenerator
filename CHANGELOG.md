@@ -1,6 +1,35 @@
 # Changelog
 
-## [0.2.0] — Unreleased
+## [0.2.2] — 2026-04-06
+
+### Fixed
+
+- Story panel and character sheet used a single global panel instance, causing content from one workspace root to appear in a panel opened for another. Each workspace root now owns its own panel.
+- API 429 (rate limit) responses now surface a human-readable message instead of the generic `API error 429`.
+
+### Improved
+
+- `story.md` file watcher added to the story preview panel — external edits to the file now refresh the panel immediately without requiring a chapter write.
+
+## [0.2.1] — 2026-04-04
+
+### Added
+
+- **Detective name** (`Noir Commits: Set Detective Name`) — set a personal alias used as your character's name in the story. Your real git author name is never sent to any AI provider
+- **Onboarding walkthrough** — first activation prompts provider choice, data disclosure, and detective name instead of silently waiting for a commit
+
+### Improved
+
+- **Fewer API calls per commit** — character and thread metadata is now extracted in the same call as chapter generation (down from 3 calls to 1–2 per commit)
+- **`max_tokens` tuned** — chapter generation budget reduced from 1000 to 600 tokens, matching actual output length (150–300 words)
+
+### Privacy & Compliance
+
+- Git author names are no longer sent to any AI provider — replaced by the user's chosen detective alias
+- `story.md` now includes an HTML comment header disclosing that content is AI-generated and what data was used
+- Story preview panel shows an "AI-generated content" badge and a link to report issues
+
+## [0.2.0]
 
 ### Added
 

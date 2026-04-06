@@ -2,24 +2,24 @@
   "name": "noir-commits",
   "displayName": "Noir Commits",
   "description": "Turns your git commits into a noir detective story, one chapter at a time.",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "publisher": "nonsleeper2026",
   "repository": {
     "type": "git",
     "url": "https://github.com/girlandred/NoirGenerator"
   },
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Other"
   ],
   "keywords": [
     "git",
-    "story",
-    "noir",
-    "creative",
-    "commits"
+    "ai",
+    "claude",
+    "commits",
+    "fun"
   ],
   "icon": "Logo.png",
   "galleryBanner": {
@@ -59,6 +59,10 @@
       {
         "command": "noirCommits.showCharacters",
         "title": "Noir Commits: Show Character Sheet"
+      },
+      {
+        "command": "noirCommits.setDetectiveName",
+        "title": "Noir Commits: Set Detective Name"
       }
     ],
     "configuration": {
@@ -73,6 +77,11 @@
           "type": "boolean",
           "default": false,
           "description": "Automatically write a chapter after each git commit in the workspace."
+        },
+        "noirCommits.detectiveName": {
+          "type": "string",
+          "default": "",
+          "description": "Your detective alias in the story. Replaces your git author name, which is never sent to any AI provider."
         },
         "noirCommits.model": {
           "type": "string",
@@ -91,7 +100,8 @@
     }
   },
   "scripts": {
-    "compile": "tsc -p ./",
+    "clean": "rm -rf out",
+    "compile": "npm run clean && tsc -p ./",
     "watch": "tsc -watch -p ./",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
@@ -102,21 +112,22 @@
   },
   "overrides": {
     "serialize-javascript": "^7.0.5",
-    "diff": "^8.0.4"
+    "diff": "^8.0.4",
+    "glob": "^13.0.6"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.0",
-    "@vscode/test-electron": "^2.4.0",
     "@types/node": "^20.0.0",
-    "@types/sinon": "^17.0.0",
+    "@types/sinon": "^17.0.4",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
-    "@vscode/vsce": "^2.24.0",
+    "@vscode/test-electron": "^2.4.0",
+    "@vscode/vsce": "^3.7.1",
     "eslint": "^10.1.0",
     "mocha": "^11.0.0",
     "prettier": "^3.8.1",
-    "sinon": "^17.0.0",
+    "sinon": "^18.0.1",
     "ts-node": "^10.9.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.0"

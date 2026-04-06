@@ -1,5 +1,9 @@
 import * as path from "path";
-import { downloadAndUnzipVSCode, resolveCliPathFromVSCodeExecutablePath, runTests } from "@vscode/test-electron";
+import {
+  downloadAndUnzipVSCode,
+  resolveCliPathFromVSCodeExecutablePath,
+  runTests,
+} from "@vscode/test-electron";
 
 async function main() {
   try {
@@ -14,10 +18,7 @@ async function main() {
       vscodeExecutablePath: cliPath,
       extensionDevelopmentPath,
       extensionTestsPath,
-      launchArgs: [
-        workspacePath,
-        "--disable-extensions",
-      ],
+      launchArgs: [workspacePath, "--disable-extensions"],
     });
   } catch (err) {
     console.error("Failed to run integration tests:", err);

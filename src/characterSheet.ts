@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { StoryState, getStoryState } from "./git";
 import { escapeHtml } from "./utils";
 
-let panel: vscode.WebviewPanel | undefined;
+const panels = new Map<string, vscode.WebviewPanel>();
 
 function buildHtml(state: StoryState): string {
   const { characters, openThreads = [], chapterCount } = state;
@@ -91,22 +91,24 @@ export async function showCharacterSheet(context: vscode.ExtensionContext, root:
   const state = await getStoryState(root);
   const html = buildHtml(state);
 
-  if (panel) {
-    panel.webview.html = html;
-    panel.reveal(vscode.ViewColumn.Beside);
+  const existing = panels.get(root);
+  if (existing) {
+    existing.webview.html = html;
+    existing.reveal(vscode.ViewColumn.Beside);
     return;
   }
 
-  panel = vscode.window.createWebviewPanel(
+  const panel = vscode.window.createWebviewPanel(
     "noirCharacters",
     "Noir: Character Sheet",
     vscode.ViewColumn.Beside,
     { enableScripts: false }
   );
+  panels.set(root, panel);
   panel.webview.html = html;
   panel.onDidDispose(
     () => {
-      panel = undefined;
+      panels.delete(root);
     },
     null,
     context.subscriptions

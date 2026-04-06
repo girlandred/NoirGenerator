@@ -14,22 +14,21 @@ Your developers become detectives. Your bugs become crimes. Your refactors becom
 - Auto-trigger mode writes a chapter automatically after every commit
 - **Story preview panel** — dedicated dark-themed webview renders your story in noir style
 - **Character sheet** — tracks the full cast and open plot threads accumulated across chapters
-- **Model selector** — choose between Claude Haiku (fast, economical) and Claude Sonnet (richer prose)
+- **Detective name** — set your own alias; your real git author name is never sent to any AI provider
 
 ![Noir Commits example](https://raw.githubusercontent.com/girlandred/NoirGenerator/main/NoirExample.jpg)
 
 ## Requirements
 
-An [Anthropic API key](https://console.anthropic.com) is required. Usage is billed to your Anthropic account.
+An [Anthropic API key](https://console.anthropic.com). On first activation, the extension will walk you through setup.
 
 ## Getting Started
 
 1. Install the extension
-2. Run **Noir Commits: Set API Key** from the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
-3. Paste your Anthropic API key — it is stored securely in the OS keychain, never in plaintext
-4. Open a git repository and run **Noir Commits: Write Next Chapter**
+2. A setup wizard runs automatically on first activation — choose your AI provider and set a detective alias
+3. Open a git repository and run **Noir Commits: Write Next Chapter**
 
-The chapter opens in the story preview panel. Chapters are also written to `story.md` in your workspace root.
+The chapter opens in the story preview panel and is also written to `story.md` in your workspace root.
 
 ## Commands
 
@@ -40,6 +39,7 @@ The chapter opens in the story preview panel. Chapters are also written to `stor
 | `Noir Commits: Open Story Preview` | Open the noir-themed story panel |
 | `Noir Commits: Show Character Sheet` | View the full cast and open plot threads |
 | `Noir Commits: Toggle Auto-Generate After Commit` | Enable or disable auto-generation after each commit |
+| `Noir Commits: Set Detective Name` | Set or change your character alias in the story |
 | `Noir Commits: Set API Key` | Store your Anthropic API key securely |
 | `Noir Commits: Remove API Key` | Delete the stored API key |
 
@@ -47,15 +47,19 @@ The chapter opens in the story preview panel. Chapters are also written to `stor
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| `noirCommits.model` | `claude-haiku-4-5-20251001` | Model used for generation — Haiku (fast, cheap) or Sonnet (richer prose) |
+| `noirCommits.detectiveName` | `""` | Your detective alias in the story — replaces your git author name |
+| `noirCommits.model` | `claude-haiku-4-5-20251001` | Claude model — Haiku (fast, cheap) or Sonnet (richer prose) |
 | `noirCommits.autoTrigger` | `false` | Automatically write a chapter after each commit |
 | `noirCommits.projectDescription` | `""` | A short project description used as narrative backdrop |
 
 ## Privacy
 
-- Your API key is stored in the VS Code SecretStorage (OS keychain) — never written to disk or sent anywhere except the Anthropic API
-- Story state is saved to `.noir-commits-state.json` in your workspace root — add it to `.gitignore` to keep your story private
-- Commit messages, author names, and diff stats are sent to the Anthropic API to generate story text
+- Your git **author name is never sent** to any AI provider — use a detective alias instead
+- Commit messages, dates, and file-change summaries are sent to the selected AI provider to generate story text
+- Your API key is stored in VS Code SecretStorage (OS keychain) — never written to disk or sent anywhere except the Anthropic API
+- Story state is saved to `.noir-commits-state.json` in your workspace root — add it to `.gitignore` to keep it private
+- Generated story content is labeled as AI-generated in the preview panel and in `story.md`
+- To report an issue or unexpected output: [open an issue](https://github.com/girlandred/NoirGenerator/issues)
 
 ---
 
